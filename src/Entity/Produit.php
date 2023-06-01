@@ -22,6 +22,10 @@ class Produit
     #[ORM\Column(nullable: true)]
     private ?int $age_consultation = null;
 
+    #[ORM\ManyToOne(inversedBy: 'produits')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -59,6 +63,18 @@ class Produit
     public function setAgeConsultation(?int $age_consultation): self
     {
         $this->age_consultation = $age_consultation;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

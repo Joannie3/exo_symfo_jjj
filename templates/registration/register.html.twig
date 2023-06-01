@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block body %}
+
+<div class="container">
+    <h1 class="text-center">Inscription</h1>
+
+    {{ form_start(registrationForm) }}
+
+    {{form_errors(registrationForm.email)}}
+    {{form_errors(registrationForm.password)}}
+    {{form_errors(registrationForm.rue)}}
+    {{form_errors(registrationForm.cp)}}
+    {{form_errors(registrationForm.ville)}}
+    {{form_errors(registrationForm.date_naissance)}}
+
+    <div class="row">
+        {{ form_label(registrationForm.email) }}
+        {{ form_widget(registrationForm.email) }}
+    </div>
+
+    <div class="row mt-4">
+        {{ form_label(registrationForm.password) }}
+        {{ form_widget(registrationForm.password) }}
+    </div>
+
+    <div class="row mt-4">
+        {{ form_label(registrationForm.rue) }}
+        {{ form_widget(registrationForm.rue) }}
+    </div>
+
+    <div class="row mt-4">
+        {{ form_label(registrationForm.cp) }}
+        {{ form_widget(registrationForm.cp) }}
+    </div>
+
+    <div class="row mt-4">
+        {{ form_label(registrationForm.ville) }}
+        {{ form_widget(registrationForm.ville) }}
+    </div>
+
+    <div class="row mt-4">
+        {{ form_label(registrationForm.date_naissance) }}
+        {{ form_widget(registrationForm.date_naissance) }}
+    </div>
+
+    <div class="row mt-4">
+        {{ form_row(registrationForm.agreeTerms) }}
+    </div>
+
+
+        <button type="submit" class="btn btn-primary">Inscription</button>
+    {{ form_end(registrationForm) }}
+</div>
+
+    
+
+
+{% endblock %}

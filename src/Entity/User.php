@@ -2,14 +2,21 @@
 
 namespace App\Entity;
 
-use App\Repository\UserRepository;
+
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UserRepository;
+
+use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: '`user`')]
+#[UniqueEntity(fields: ['email'], message: 'Cet adresse e-mail est déjà utilisée')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
@@ -18,6 +25,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 180, unique: true)]
+    #[Assert\Email(
+        message: 'L\'adresse {{ value }} n\'est pas une adresse mail valide.',
+    )]
     private ?string $email = null;
 
     #[ORM\Column]
@@ -36,10 +46,23 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?string $rue = null;
 
     #[ORM\Column(length: 255)]
+    #[Assert\Regex(
+        pattern: '/^[0-9]{5}+$/',
+        message: 'Merci de mettre un code postal valide',
+        )]
     private ?string $cp = null;
 
     #[ORM\Column(length: 255)]
     private ?string $ville = null;
+
+    #[ORM\OneToMany(mappedBy: 'user', targetEntity: Produit::class)]
+    private Collection $produits;
+
+    public function __construct()
+    {
+        $this->roles = ['ROLE_USER'];
+        $this->produits = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -155,6 +178,46 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setVille(string $ville): self
     {
         $this->ville = $ville;
+
+        return $this;
+    }
+
+    // private function validationDate(){
+    //     $date_actuel = new \DateTime();
+    //     $date_anniversaire = $this->date_naissance;
+
+
+    //     $interval = date_diff($date_actuel, $date_anniversaire);
+    //     dd($interval);
+    //     // dd($interval->format('%R%a days'));
+    // }
+
+    /**
+     * @return Collection<int, Produit>
+     */
+    public function getProduits(): Collection
+    {
+        return $this->produits;
+    }
+
+    public function addProduit(Produit $produit): self
+    {
+        if (!$this->produits->contains($produit)) {
+            $this->produits->add($produit);
+            $produit->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeProduit(Produit $produit): self
+    {
+        if ($this->produits->removeElement($produit)) {
+            // set the owning side to null (unless already changed)
+            if ($produit->getUser() === $this) {
+                $produit->setUser(null);
+            }
+        }
 
         return $this;
     }
