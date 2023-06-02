@@ -7,13 +7,19 @@
 
     <h1 class="text-center">Liste des produits</h1>
 
-    
 
     {% for produit in produits %}
 
         {# {{dump(app.user.id)}} #}
-        {{ produit.nom}}  
-        {% if produit.user.id  == app.user.id %}Editer{% endif %}<br>
+        {{ produit.nom}}     
+
+        {% if produit.ageConsultation == '0' %} Pour tous {% else %}
+        
+        {% if age == 'majeur' %}Voir {% else %}Vous êtes trop jeune pour voir ce produit désolé !{% endif %}
+        
+        {% endif %}        
+
+        {% if produit.user.id  == app.user.id %}<a href="{{path('app_produits_editer', {id:produit.id})}}">Editer</a>{% endif %}<br>
         
     {% endfor %}
 

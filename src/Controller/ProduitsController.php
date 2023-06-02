@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use DateTime;
 use App\Entity\Produit;
 use App\Form\ProduitAjoutType;
 use App\Repository\ProduitRepository;
@@ -10,8 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Security;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 
 class ProduitsController extends AbstractController
@@ -22,11 +23,19 @@ class ProduitsController extends AbstractController
     {
         $produits = $produitRepo->findAll();
 
-        // dd($produits);
+        $user = $this->getUser();
 
-        
+        $date_anniv = $user->getDateNaissance();
+        $date_actuel = new DateTime();
+        $interval = date_diff($date_actuel, $date_anniv);
+
+        // dd($interval->format('%Y%'));
+
+        if ($interval->format('%Y%') >= '18') {$age = 'majeur';} else {$age = 'mineur';}
+
         return $this->render('produits/index.html.twig', [
             'produits' => $produits,
+            'age' => $age,
         ]);
     }
 
@@ -58,7 +67,7 @@ class ProduitsController extends AbstractController
     }
 
     #[Route('/produits/editer/{id}', name: 'app_produits_editer', methods: ['GET', 'POST'])]
-    #[Security("is_granted('ROLE_USER') and user === produit.getUser()")]
+    #[Security("is_granted('ROLE_USER') and user === produit.getUser() or is_granted('ROLE_ADMIN')", message : 'Vous ne pouvez pas accèder à cette page BIM !')]
     public function editer(Produit $produit, Request $request, EntityManagerInterface $manager): Response
     {
         $form = $this->createForm(ProduitAjoutType::class, $produit);
